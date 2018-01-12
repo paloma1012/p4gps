@@ -20,7 +20,7 @@ services:
  volumes:
  - "db-data:/data/db" # para dar persistencia a la sesión
  order:
- image: usuarioDocker/p4gps:order
+ image: palomacg96/p4gps:order
  depends_on:
  - "mongo" #le psamos al servicio order la ip del servicio mongo
  deploy:
@@ -34,7 +34,7 @@ services:
  ports:
  - "8080:8080"
  web:
- image: usuarioDocker/p4gps:web
+ image: palomacg96/p4gps:web
  deploy:
  replicas: 1
  resources:

@@ -1,50 +1,60 @@
 version: "3"
-services:
-# ahora se indican los servicios por el orden en que se quiere que se inicien.
-# Por ejemplo, mongo debe estar antes de order.
- mongo: #este es el mismo nombre usado en el run.sh de Order, y el
-#application.properties, se resuelve en una dirección IP
- image: usuarioDocker/p4gps:db
- deploy:
- replicas: 1 # para escabilidad del servicio.
- resources:
- limits:
- cpus: "0.15"
- memory: 200M
- restart_policy:
- condition: on-failure #reinicar el contenedor si falla
- ports:
- - "28017:28017" # mapeo el Puerto del contenedor (derecha) con el puerto
-# del host del servicio (izquierda)
- - "27017:27017"
- volumes:
- - "db-data:/data/db" # para dar persistencia a la sesión
- order:
- image: palomacg96/p4gps:order
- depends_on:
- - "mongo" #le psamos al servicio order la ip del servicio mongo
- deploy:
- replicas: 1
- resources:
- limits:
- cpus: "0.2"
- memory: 300M
- restart_policy:
- condition: on-failure
- ports:
- - "8080:8080"
- web:
- image: palomacg96/p4gps:web
- deploy:
- replicas: 1
- resources:
- limits:
- cpus: "0.15"
- memory: 50M
- restart_policy:
- condition: on-failure
- ports:
- - "80:8080"
+#docker stack deploy -c docker-compose.yml p4gps
 
+# when running services, the container id of each can be seen with 'docker ps'
+#then, you can enter in its shell with ' winpty docker exec -it TheID bash'
+# docker stack rm partsunlimitedmrp para eliminar la pila de serivcios
+
+
+
+services:
+  mongo:
+    image: palomacg96/p4gps:db
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: 200M
+      restart_policy:
+        condition: on-failure
+     
+    ports:
+      - "28017:28017"
+      - "27017:27017"
+    volumes:
+      - "db-data:/data/db" #to keep data stored after feeding database
+
+   
+  
+  order:
+    image: palomacg96/p4gps:order
+    depends_on:
+      - "mongo"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 300M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8080:8080"
+
+  
+  web:
+    image: palomacg96/p4gps:web
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "80:8080"  
+  
 volumes:
- db-data:
+   db-data:
